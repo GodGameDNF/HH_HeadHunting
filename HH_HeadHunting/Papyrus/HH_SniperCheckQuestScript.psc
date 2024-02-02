@@ -16,9 +16,17 @@ Event OnAliasInit()
 EndEvent
 
 Event OnItemEquipped(Form akBaseObject, ObjectReference akReference)
-	if akBaseObject.HasKeyword(WeaponTypeSniper)
-		PlayerRef.AddPerk(HH_Perk)
-	else
-		PlayerRef.RemovePerk(HH_Perk)
+	if akBaseObject as Weapon
+		if akBaseObject.HasKeyword(WeaponTypeSniper)
+			PlayerRef.AddPerk(HH_Perk)
+		Endif
+	Endif
+EndEvent
+
+Event OnItemUnEquipped(Form akBaseObject, ObjectReference akReference)
+	if akBaseObject as Weapon
+		if akBaseObject.HasKeyword(WeaponTypeSniper)
+			PlayerRef.RemovePerk(HH_Perk)
+		Endif
 	Endif
 EndEvent
