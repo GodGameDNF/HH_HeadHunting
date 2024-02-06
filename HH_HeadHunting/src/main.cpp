@@ -90,24 +90,38 @@ void HitHead(std::monostate, Actor* a)
 		}
 	}
 
+	TESForm* armorForm = tempanims->object[3].parent.object;
+
 	for (int i = 0; i <= 16; i += 16) {
 		TESForm* form = tempanims->object[i].parent.object;
 		if (form) {
 			if (tempanims->object[i].skinned) {
-				if (form->GetPlayable(tempanims->object[i].parent.instanceData.get())) {
+				TBO_InstanceData* tempTBO = tempanims->object[i].parent.instanceData.get();
+				if (!tempTBO)
+					continue;
+
+				if (armorForm) {
+					if (armorForm == form)
+						continue;
+				}
+
+				if (form->GetPlayable(tempTBO)) {
 					//logger::info("{}번 슬롯은 플레이어블", i);
 					a->UnequipArmorFromSlot((BIPED_OBJECT)i, true);
 
 					const char* ModelPath = GetModel(form);
-					if (!ModelPath) {
+					if (!ModelPath || ModelPath[0] == '\0') {
 						//logger::info("모델 경로 못구함");
 					} else {
+						NiAVObject* head = a->currentProcess->middleHigh->headNode;
+						if (!head)
+							return;
+
 						TESModel* cModel = (TESModel*)cProj;
 						cModel->model = ModelPath;
 
 						cProj->data.speed = GetRandomfloat(430, 550);
 
-						NiAVObject* head = a->currentProcess->middleHigh->headNode;
 						NiPoint3 pPoint = p->GetPosition();
 						NiPoint3 aPoint = a->GetPosition();
 
@@ -153,10 +167,6 @@ void OnF4SEMessage(F4SE::MessagingInterface::Message* msg)
 bool RegisterPapyrusFunctions(RE::BSScript::IVirtualMachine* a_vm)
 {
 	vm = a_vm;
-
-	REL::IDDatabase::Offset2ID o2i;
-	logger::info("0x0x140b0e0: {}", o2i(0x140b0e0));
-
 	a_vm->BindNativeMethod("HH_HeadHunting"sv, "HitHead"sv, HitHead);
 
 	return true;
